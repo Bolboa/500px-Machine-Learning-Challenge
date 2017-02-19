@@ -10,9 +10,11 @@ def sigmoid(z):
 # classifier probability
 def probability(sig_val):
     if sig_val < 0.5:
-        print("Classifier is " + str((1-sig_val)*100) + " certain that value is  class 0")
+        result = "Classifier is {}% certain that value is class 0".format(round((1-sig_val)*100, 2))
+        print(result)
     else:
-        print("Classifier is " + str(sig_val*100) + " certain that value is  class 1")
+        result = "Classifier is {}% certain that value is class 1".format(round(sig_val*100, 2))
+        print(result)
 
 
 def main():
