@@ -1,11 +1,15 @@
-import tensorflow as tf
+'''
+A toy example for understanding the process behind breaking linear classifiers.
+'''
+
 import numpy
 import math
-import matplotlib.pyplot as plt
+
 
 # sigmoid function
 def sigmoid(z):
     return 1/(1 + math.exp(-z))
+
 
 # classifier probability
 def probability(sig_val):
