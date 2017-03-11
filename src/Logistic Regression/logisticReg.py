@@ -15,6 +15,7 @@ flags.DEFINE_integer('batch_size', 100, 'Batch size. Must divide evenly into the
 flags.DEFINE_integer('display_step', 1, 'Tells function to print out progress after every epoch')
 
 def logistic_regression():
+    
     mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
     # tf Graph Input
@@ -34,7 +35,7 @@ def logistic_regression():
     optimizer = tf.train.GradientDescentOptimizer(FLAGS.learning_rate).minimize(cost)
 
     # initializing the variables
-    init = tf.global_variables_initializer()
+    init = tf.initialize_all_variables()
 
     saver = tf.train.Saver()
 
@@ -92,21 +93,9 @@ def logistic_regression():
         plt.show()
 
 
-def use_model():
-    saver = tf.train.Saver()
-
-    # Later, launch the model, use the saver to restore variables from disk, and
-    # do some work with the model.
-    with tf.Session() as sess:
-        # Restore variables from disk.
-        saver.restore(sess, "/tmp/model.ckpt")
-        print("Model restored.")
-
-
 
 def main(_):
     logistic_regression()
-    use_model()
 if __name__ == '__main__':
   tf.app.run()
 
