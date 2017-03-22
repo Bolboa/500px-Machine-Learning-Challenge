@@ -27,7 +27,8 @@ def logistic_regression():
     b = tf.Variable(tf.zeros([10]))
 
     # construct model
-    pred = tf.nn.softmax(tf.matmul(x, W) + b)  # Softmax
+    logits = tf.matmul(x, W) + b
+    pred = tf.nn.softmax(logits)  # Softmax
 
     # minimize error using cross entropy
     cost = tf.reduce_mean(-tf.reduce_sum(y * tf.log(pred), reduction_indices=1))
