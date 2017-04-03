@@ -11,7 +11,7 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 flags.DEFINE_integer('training_epochs', 25, 'Number of times training vectors are used once to update weights.')
-flags.DEFINE_integer('batch_size', 1, 'Batch size. Must divide evenly into the data set sizes.')
+flags.DEFINE_integer('batch_size', 10, 'Batch size. Must divide evenly into the data set sizes.')
 flags.DEFINE_integer('display_step', 1, 'Tells function to print out progress after every epoch')
 
 def logistic_regression():
@@ -19,11 +19,11 @@ def logistic_regression():
     mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
     # tf Graph Input
-    x = tf.get_variable("input_image", shape=[1,784], dtype=tf.float32)
-    x_placeholder = tf.placeholder(tf.float32, shape=[1, 784])
+    x = tf.get_variable("input_image", shape=[10,784], dtype=tf.float32)
+    x_placeholder = tf.placeholder(tf.float32, shape=[10, 784])
     assign_x_op = x.assign(x_placeholder).op
     
-    y = tf.placeholder(shape=[1,10], name='input_label', dtype=tf.float32)  # 0-9 digits recognition => 10 classes
+    y = tf.placeholder(shape=[10,10], name='input_label', dtype=tf.float32)  # 0-9 digits recognition => 10 classes
 
 
     # set model weights
