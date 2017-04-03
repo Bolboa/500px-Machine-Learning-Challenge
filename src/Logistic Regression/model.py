@@ -6,7 +6,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_float('learning_rate', 1e-3, 'Initial learning rate.')
-flags.DEFINE_integer('training_epochs', 5, 'Number of times training vectors are used once to update weights.')
+flags.DEFINE_integer('training_epochs', 30, 'Number of times training vectors are used once to update weights.')
 flags.DEFINE_integer('batch_size', 1, 'Batch size. Must divide evenly into the data set sizes.')
 
 def use_model():
@@ -38,17 +38,28 @@ def use_model():
     with tf.Session() as sess:
         # reload model
         saver.restore(sess, "/tmp/model.ckpt")
+
+        # initialize array that will store images of number 2
         labels_of_2 = []
         
-        # get number 7 from mnist dataset
+        # get number 2 from mnist dataset
         while mnist.test.next_batch(FLAGS.batch_size):
+            # get next batch
             sample_image, sample_label = mnist.test.next_batch(FLAGS.batch_size)
+            # returns index of label
             itemindex = np.where(sample_label == 1)
 
-            if itemindex[1][0] == 1:
+            # if image label is a number 2 store the image
+            if itemindex[1][0] == 2:
                 labels_of_2.append(sample_image)
+            else:
+                continue
+
+            # if there are 10 images stored then end the loop
             if len(labels_of_2) == 10:
                 break
+
+        # convert into a numpy array of shape [10, 784]
         labels_of_2 = np.concatenate(labels_of_2, axis=0)
 
         # assign the sample image to the variable
@@ -58,19 +69,23 @@ def use_model():
 
         # placeholder for target label
         fake_label = tf.placeholder(tf.int32, shape=[10])
-        # calculate loss using cross entropy 
+        # setup the fake loss
         fake_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits,labels=fake_label)
 
-        # batch gradient descent using softmax to minimize the loss from using the target label
+        # minimize fake loss using gradient descent,
+        # calculating the derivatives of the weight of the fake image will give the direction of weights necessary to change the prediction
         adversarial_step = tf.train.GradientDescentOptimizer(learning_rate=FLAGS.learning_rate).minimize(fake_loss, var_list=[x])
 
-        # the training cycle is run multiple times until the weights for the sample image start to change in the direction of the target label
+        # continue calculating the derivative until the prediction changes for all 10 images
         for i in range(FLAGS.training_epochs):
-            # target label is fed to the learning algorithm
-            sess.run(adversarial_step, feed_dict={fake_label:np.array([8, 8, 8, 8, 8, 8, 8, 8, 8, 8])})
+            # fake label tells the training algorithm to use the weights calculated for number 6
+            sess.run(adversarial_step, feed_dict={fake_label:np.array([6]*10)})
             sess.run(pred)
-        
+
+        plt.subplot(2,2,1)
         plt.imshow(sess.run(x[0]).reshape(28,28),cmap='gray')
+
+        
         plt.show()
 
       
