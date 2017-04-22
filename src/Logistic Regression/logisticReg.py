@@ -19,11 +19,11 @@ def logistic_regression():
     mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
     # tf Graph Input
-    x = tf.get_variable("input_image", shape=[100,784], dtype=tf.float32)
-    x_placeholder = tf.placeholder(tf.float32, shape=[100, 784])
-    assign_x_op = x.assign(x_placeholder).op
+    #x = tf.get_variable("input_image", shape=[None,784], dtype=tf.float32)
+    x = tf.placeholder(tf.float32, shape=[None, 784])
+    #assign_x_op = x.assign(x_placeholder).op
     
-    y = tf.placeholder(shape=[100,10], name='input_label', dtype=tf.float32)  # 0-9 digits recognition => 10 classes
+    y = tf.placeholder(shape=[None,10], name='input_label', dtype=tf.float32)  # 0-9 digits recognition => 10 classes
 
 
     # set model weights
@@ -58,8 +58,8 @@ def logistic_regression():
             for i in range(total_batch):
                 batch_xs, batch_ys = mnist.train.next_batch(FLAGS.batch_size)
                 # Assign the contents of `batch_xs` to variable `x`.
-                sess.run(assign_x_op, feed_dict={x_placeholder: batch_xs})
-                _, c = sess.run([optimizer, cost], feed_dict={y: batch_ys})
+                #sess.run(assign_x_op, feed_dict={x_placeholder: batch_xs})
+                _, c = sess.run([optimizer, cost], feed_dict={x:batch_xs, y: batch_ys})
                 
                 # compute average loss
                 avg_cost += c / total_batch
@@ -73,11 +73,11 @@ def logistic_regression():
 
         # list of booleans to determine the correct predictions
         correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
-        print(correct_prediction.eval({x_placeholder:mnist.test.images, y:mnist.test.labels}))
+        print(correct_prediction.eval({x:mnist.test.images, y:mnist.test.labels}))
 
         # calculate total accuracy
-        #accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-        #print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}))
+        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+        print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}))
 
         # display predicted label
         #learned_label = sess.run(y, {x: mnist.test.images, y: mnist.test.labels})[0]
