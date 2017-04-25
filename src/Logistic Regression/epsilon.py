@@ -14,6 +14,7 @@ def use_model():
     mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
     # tf Graph Input
+    grads = tf.placeholder(tf.float32, shape=[100, 784])
     x = tf.placeholder(tf.float32, shape=[None, 784])
     #x = tf.get_variable("input_image", shape=[100,784], dtype=tf.float32)
     y = tf.placeholder(shape=[None,10], name='input_label', dtype=tf.float32)  # 0-9 digits recognition => 10 classes
@@ -66,10 +67,13 @@ def use_model():
         labels_of_2 = np.concatenate(labels_of_2, axis=0)
 
 
-        epsilons = np.array([-0.2, -0.4, -0.25, -0.25, 
-                     -0.3, -0.515, -0.15, -0.7, 
-                     -1.0, -0.20]).reshape((10, 1))
+        epsilon_res = 101
+        eps = np.linspace(-1.0, 1.0, epsilon_res).reshape((epsilon_res, 1))
+
         
+        # Create an empty array for our scores
+        scores = np.zeros((len(eps), 10))
+
         # placeholder for target label
         fake_label = tf.placeholder(tf.int32, shape=[100])
         # setup the fake loss
@@ -77,7 +81,26 @@ def use_model():
 
         gradients = tf.gradients(fake_loss, x)
 
-        #sess.run(pred, feed_dict={x:labels_of_2})
+        sess.run(pred, feed_dict={x:labels_of_2})
+        
+        gradient_value = sess.run(gradients, feed_dict={x:labels_of_2, fake_label:np.array([6]*100)})
+
+        for j in range(len(labels_of_2)):
+            sign = np.sign(gradient_value[0][j])
+            
+            for i in range(len(eps)):
+                labels_of_2[j] = labels_of_2[j] + eps[i] * sign
+                scores[i,:] = logits.eval({x:labels_of_2})[j]
+            print(scores)
+        
+        '''# placeholder for target label
+        fake_label = tf.placeholder(tf.int32, shape=[100])
+        # setup the fake loss
+        fake_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits,labels=fake_label)
+
+        gradients = tf.gradients(fake_loss, x)
+
+        sess.run(pred, feed_dict={x:labels_of_2})
         
         gradient_value = sess.run(gradients, feed_dict={x:labels_of_2, fake_label:np.array([6]*100)})
 
@@ -85,13 +108,11 @@ def use_model():
 
         noise = epsilons * sign
 
-        #print(sign)
-
         for j in range(len(labels_of_2)):
             labels_of_2[j] = labels_of_2[j] + noise[0]
 
         
-        
+
 
         plt.subplot(2,2,1)
         plt.imshow(sess.run(x[0], feed_dict={x:labels_of_2}).reshape(28,28),cmap='gray')
@@ -100,7 +121,7 @@ def use_model():
         plt.show()
 
         classification = sess.run(tf.argmax(pred, 1), feed_dict={x:labels_of_2})
-        print(classification)
+        print(classification)'''
         
 use_model()
 
