@@ -19,10 +19,7 @@ def logistic_regression():
     mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
     # tf Graph Input
-    #x = tf.get_variable("input_image", shape=[None,784], dtype=tf.float32)
     x = tf.placeholder(tf.float32, shape=[None, 784])
-    #assign_x_op = x.assign(x_placeholder).op
-    
     y = tf.placeholder(shape=[None,10], name='input_label', dtype=tf.float32)  # 0-9 digits recognition => 10 classes
 
 
@@ -58,7 +55,6 @@ def logistic_regression():
             for i in range(total_batch):
                 batch_xs, batch_ys = mnist.train.next_batch(FLAGS.batch_size)
                 # Assign the contents of `batch_xs` to variable `x`.
-                #sess.run(assign_x_op, feed_dict={x_placeholder: batch_xs})
                 _, c = sess.run([optimizer, cost], feed_dict={x:batch_xs, y: batch_ys})
                 
                 # compute average loss
