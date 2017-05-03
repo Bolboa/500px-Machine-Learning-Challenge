@@ -58,7 +58,7 @@ def use_model():
                 continue
 
             # if there are 10 images stored then end the loop
-            if len(labels_of_2) == 100:
+            if len(labels_of_2) == 10:
                 break
 
         
@@ -66,12 +66,12 @@ def use_model():
         labels_of_2 = np.concatenate(labels_of_2, axis=0)
 
 
-        epsilons = np.array([-0.2, -0.4, -0.25, -0.25, 
-                     -0.3, -0.515, -0.15, -0.7, 
-                     -1.0, -0.20]).reshape((10, 1))
+        epsilons = np.array([-0.1, -0.1, -0.1, -0.1, 
+                     -0.1, -0.1, -0.15, -0.1, 
+                     -0.1, -0.10]).reshape((10, 1))
         
         # placeholder for target label
-        fake_label = tf.placeholder(tf.int32, shape=[100])
+        fake_label = tf.placeholder(tf.int32, shape=[10])
         # setup the fake loss
         fake_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits,labels=fake_label)
 
@@ -79,18 +79,15 @@ def use_model():
 
         #sess.run(pred, feed_dict={x:labels_of_2})
         
-        gradient_value = sess.run(gradients, feed_dict={x:labels_of_2, fake_label:np.array([6]*100)})
+        gradient_value = sess.run(gradients, feed_dict={x:labels_of_2, fake_label:np.array([6]*10)})
 
         sign = np.sign(gradient_value[0][0])
 
         noise = epsilons * sign
 
-        #print(sign)
 
         for j in range(len(labels_of_2)):
             labels_of_2[j] = labels_of_2[j] + noise[0]
-
-        
         
 
         plt.subplot(2,2,1)

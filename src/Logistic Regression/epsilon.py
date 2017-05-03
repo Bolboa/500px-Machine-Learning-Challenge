@@ -15,7 +15,6 @@ def use_model():
 
     # tf Graph Input
     x = tf.placeholder(tf.float32, shape=[None, 784])
-    #x = tf.get_variable("input_image", shape=[100,784], dtype=tf.float32)
     y = tf.placeholder(shape=[None,10], name='input_label', dtype=tf.float32)  # 0-9 digits recognition => 10 classes
 
     # set model weights
@@ -46,8 +45,10 @@ def use_model():
         
         # get number 2 from mnist dataset
         while mnist.test.next_batch(FLAGS.batch_size):
+
             # get next batch
             sample_image, sample_label = mnist.test.next_batch(FLAGS.batch_size)
+
             # returns index of label
             itemindex = np.where(sample_label == 1)
 
@@ -58,18 +59,21 @@ def use_model():
                 continue
 
             # if there are 10 images stored then end the loop
-            if len(labels_of_2) == 100:
+            if len(labels_of_2) == 10:
                 break
 
         
-        # convert into a numpy array of shape [100, 784]
+        # convert into a numpy array of shape [10, 784]
         labels_of_2 = np.concatenate(labels_of_2, axis=0)
 
-        print(labels_of_2.shape)
+        # generate 101 different epsilon values to test with
         epsilon_res = 101
         eps = np.linspace(-1.0, 1.0, epsilon_res).reshape((epsilon_res, 1))
+
+        # labels for each image (used for graphing)
         labels = [str(i) for i in range(10)]
 
+        # set different colors for every Softmax hypothesis
         num_colors = 10
         cmap = plt.get_cmap('hsv')
         colors = [cmap(i) for i in np.linspace(0, 1, num_colors)]
@@ -79,56 +83,46 @@ def use_model():
         scores = np.zeros((len(eps), 10))
 
         # placeholder for target label
-        fake_label = tf.placeholder(tf.int32, shape=[100])
+        fake_label = tf.placeholder(tf.int32, shape=[10])
         # setup the fake loss
         fake_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits,labels=fake_label)
 
+        # calculate gradient
         gradients = tf.gradients(fake_loss, x)
 
-        sess.run(pred, feed_dict={x:labels_of_2})
-        
-        gradient_value = sess.run(gradients, feed_dict={x:labels_of_2, fake_label:np.array([6]*100)})
+        # compute gradient value using the same Softmax model used to train the orginal model,
+        # the gradient generates the values necessary to change the predictions of the number 2 to a number 6
+        # with minimal cost
+        gradient_value = sess.run(gradients, feed_dict={x:labels_of_2, fake_label:np.array([6]*10)})
 
-        allScores = []
-        sample_labels = labels_of_2
+        for j in range(len(labels_of_2)):
 
-
-        sign = np.sign(gradient_value[0][0])
-        for i in range(len(eps)):
-            x_fool = labels_of_2[0].reshape((1, 784)) + eps[i] * sign
-            scores[i, :] = logits.eval({x:x_fool})
-        
-        '''for j in range(len(labels_of_2)):
+            # extract the sign of the gradient value for each image
             sign = np.sign(gradient_value[0][j])
-            
-            for i in range(len(eps)):
-                old_label = labels_of_2[j]
-                new_label = labels_of_2[j].reshape((1, 784)) + eps[i] * sign
-                sample_labels[...] = new_label
-                
-                scores[i,:] = logits.eval({x:sample_labels})[j]
-                #sample_labels[...] = old_label
-                
-            allScores.append(scores)
-        print(len(allScores[0].T))'''
 
-        # Create a figure
-        plt.figure(figsize=(10, 8))
-        plt.title("Image {}".format(0))
-        
-        for k in range(len(scores.T)):
-            plt.plot(eps, scores[:, k], 
-                 color=colors[k], 
-                 marker='.', 
-                 label=labels[k])
-            
+            # apply every epsilon value along with the sign of the gradient to the image
+            for i in range(len(eps)):
+                x_fool = labels_of_2[j].reshape((1, 784)) + eps[i] * sign
+
+                # the scores are re-evaluated using the model and each 10 hypotheses are saved
+                scores[i, :] = logits.eval({x:x_fool})
+
+            # create a figure
+            plt.figure(figsize=(10, 8))
+            plt.title("Image {}".format(j))
+
+            # loop through transpose of the scores to plot the effect of epsilon of every hypothesis
+            for k in range(len(scores.T)):
+                plt.plot(eps, scores[:, k], 
+                     color=colors[k], 
+                     marker='.', 
+                     label=labels[k])
+ 
         plt.legend(prop={'size':8})
         plt.xlabel('Epsilon')
         plt.ylabel('Class Score')
         plt.grid('on')
-        plt.show()
-        
-      
+        plt.show()  
         
 use_model()
 
