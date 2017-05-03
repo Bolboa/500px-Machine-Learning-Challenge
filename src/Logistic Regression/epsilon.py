@@ -37,6 +37,7 @@ def use_model():
     saver = tf.train.Saver()
 
     with tf.Session() as sess:
+
         # reload model
         saver.restore(sess, "/tmp/model.ckpt")
 
@@ -77,13 +78,13 @@ def use_model():
         num_colors = 10
         cmap = plt.get_cmap('hsv')
         colors = [cmap(i) for i in np.linspace(0, 1, num_colors)]
-
         
         # Create an empty array for our scores
         scores = np.zeros((len(eps), 10))
 
         # placeholder for target label
         fake_label = tf.placeholder(tf.int32, shape=[10])
+
         # setup the fake loss
         fake_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits,labels=fake_label)
 
