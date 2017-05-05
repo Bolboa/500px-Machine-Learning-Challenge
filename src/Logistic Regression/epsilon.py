@@ -14,12 +14,12 @@ def use_model():
     mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
     # tf Graph Input
-    x = tf.placeholder(tf.float32, shape=[None, 784])
-    y = tf.placeholder(shape=[None,10], name='input_label', dtype=tf.float32)  # 0-9 digits recognition => 10 classes
+    x = tf.placeholder(tf.float32, [None, 784]) # mnist data image of shape 28*28=784
+    y = tf.placeholder(tf.float32, [None, 10]) # 0-9 digits recognition => 10 classes
 
     # set model weights
-    W = tf.get_variable("weights", shape=[784, 10], dtype=tf.float32, initializer=tf.random_normal_initializer())
-    b = tf.get_variable("biases", shape=[1, 10], dtype=tf.float32, initializer=tf.zeros_initializer())
+    W = tf.Variable(tf.zeros([784, 10]))
+    b = tf.Variable(tf.zeros([10]))
 
     # construct model
     logits = tf.matmul(x, W) + b
