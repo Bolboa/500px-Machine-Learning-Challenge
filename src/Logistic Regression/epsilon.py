@@ -126,4 +126,3 @@ def use_model():
         plt.show()  
         
 use_model()
-

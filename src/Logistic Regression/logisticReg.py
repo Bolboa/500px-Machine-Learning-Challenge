@@ -9,7 +9,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
-flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
+flags.DEFINE_float('learning_rate', 0.05, 'Initial learning rate.')
 flags.DEFINE_integer('training_epochs', 25, 'Number of times training vectors are used once to update weights.')
 flags.DEFINE_integer('batch_size', 100, 'Batch size. Must divide evenly into the data set sizes.')
 flags.DEFINE_integer('display_step', 1, 'Tells function to print out progress after every epoch')
