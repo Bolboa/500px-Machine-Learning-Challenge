@@ -65,7 +65,7 @@ def use_model():
 
         
         # convert into a numpy array of shape [10, 784]
-        labels_of_2 = np.concatenate(labels_of_2, axis=0)
+        adversarial = np.concatenate(labels_of_2, axis=0)
 
         # generate 101 different epsilon values to test with
         epsilon_res = 101
@@ -94,22 +94,22 @@ def use_model():
         # compute gradient value using the same Softmax model used to train the orginal model,
         # the gradient generates the values necessary to change the predictions of the number 2 to a number 6
         # with minimal cost
-        gradient_value = sess.run(gradients, feed_dict={x:labels_of_2, fake_label:np.array([6]*10)})
+        gradient_value = sess.run(gradients, feed_dict={x:adversarial, fake_label:np.array([6]*10)})
 
-        for j in range(len(labels_of_2)):
+        for j in range(len(adversarial)):
 
             # extract the sign of the gradient value for each image
             sign = np.sign(gradient_value[0][j])
 
             # apply every epsilon value along with the sign of the gradient to the image
             for i in range(len(eps)):
-                x_fool = labels_of_2[j].reshape((1, 784)) + eps[i] * sign
+                x_fool = adversarial[j].reshape((1, 784)) + eps[i] * sign
 
                 # the scores are re-evaluated using the model and each 10 hypotheses are saved
                 scores[i, :] = logits.eval({x:x_fool})
 
             # create a figure
-            plt.figure(figsize=(10, 8))
+            plt.figure(figsize=(15, 15))
             plt.title("Image {}".format(j))
 
             # loop through transpose of the scores to plot the effect of epsilon of every hypothesis

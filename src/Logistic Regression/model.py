@@ -111,14 +111,17 @@ def use_model():
         # initialize number rows
         rows = len(original_copy)
 
+        # create a figure
+        plt.figure(figsize=(17, 17))
+        
         # plot orginal image -> sign of gradient -> adversarial image
         for i in range(len(original_copy)):
             plt.subplot(rows,3,jump - 2)
-            plt.imshow(sess.run(x[0], feed_dict={x:original_copy}).reshape(28,28),cmap='gray')
+            plt.imshow(original_copy[i].reshape(28,28), cmap='gray')
             plt.subplot(rows,3,jump - 1)
-            plt.imshow(sess.run(x[0], feed_dict={x:sign.reshape((1, 784))}).reshape(28,28),cmap='gray')
+            plt.imshow(sign_values[i].reshape(28,28), cmap='gray')
             plt.subplot(rows,3,jump)
-            plt.imshow(sess.run(x[0], feed_dict={x:adversarial}).reshape(28,28),cmap='gray')
+            plt.imshow(adversarial[i].reshape(28,28), cmap='gray')
             jump = jump + 3
         
         plt.show()
