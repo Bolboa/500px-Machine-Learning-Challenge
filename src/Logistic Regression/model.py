@@ -130,9 +130,17 @@ def use_model():
         classification_adversarial = sess.run(tf.argmax(pred, 1), feed_dict={x:adversarial})
         print(classification_adversarial)
 
+        # calculate the probability of each prediction for adversarial images
+        max_prob = [np.amax(sess.run(pred, feed_dict={x:adversarial[i].reshape((1, 784))})) * 100 for i in range(len(original_copy))]
+        print(max_prob)
+
         # after altering each image, have the model make a prediction on gradient sign
         classification_sign = sess.run(tf.argmax(pred, 1), feed_dict={x:sign_values})
         print(classification_sign)
+
+        # calculate the probability of each prediction for gradient sign values
+        max_prob = [np.amax(sess.run(pred, feed_dict={x:sign_values[i].reshape((1, 784))})) * 100 for i in range(len(original_copy))]
+        print(max_prob)
         
 use_model()
 
