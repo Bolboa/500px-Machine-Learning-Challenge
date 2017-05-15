@@ -30,3 +30,9 @@ As is visible in the graph above, there is in fact some epsilon value for which 
 Using the gradient sign value and the epsilon values, it becomes easy to generate adversarial images.
 
 ![Alt text](/img/2s.png)
+
+## Environment
+* Python 3.5.2
+* NumPy 1.12.1
+* Tensorflow 1.0.1
+* Matplotlib 2.0.0
