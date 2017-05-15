@@ -123,7 +123,7 @@ def use_model():
             plt.imshow(original_copy[i].reshape(28,28), cmap='gray')
 
             # plot gradient sign value
-            plt.subplot(rows,3,jump - 1)
+            plt.subplot(rows,3,jump - 1).set_title("Delta")
             plt.imshow(sign_values[i].reshape(28,28), cmap='gray')
 
             # get the model confidence that the adversarial image is a 6
