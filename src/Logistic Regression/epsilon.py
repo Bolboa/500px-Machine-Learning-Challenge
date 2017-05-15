@@ -17,7 +17,7 @@ def use_model():
     x = tf.placeholder(tf.float32, [None, 784]) # mnist data image of shape 28*28=784
     y = tf.placeholder(tf.float32, [None, 10]) # 0-9 digits recognition => 10 classes
 
-    # set model weights
+    # set model weights and bias
     W = tf.Variable(tf.zeros([784, 10]))
     b = tf.Variable(tf.zeros([10]))
 

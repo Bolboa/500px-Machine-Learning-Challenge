@@ -17,7 +17,7 @@ def use_model():
     x = tf.placeholder(tf.float32, [None, 784]) # mnist data image of shape 28*28=784
     y = tf.placeholder(tf.float32, [None, 10]) # 0-9 digits recognition => 10 classes
 
-    # set model weights
+    # set model weights and bias
     W = tf.Variable(tf.zeros([784, 10]))
     b = tf.Variable(tf.zeros([10]))
 
@@ -116,12 +116,20 @@ def use_model():
         
         # plot orginal image -> sign of gradient -> adversarial image
         for i in range(len(original_copy)):
-            plt.subplot(rows,3,jump - 2)
+
+            # get the model confidence that the original image is a 6
+            plt.subplot(rows,3,jump - 2).set_title("Confidence Label 6: " + str(sess.run(pred, feed_dict={x:original_copy[i].reshape((1, 784))})[0][6] * 100) + "%")
+            plt.subplots_adjust(top = 2, bottom=0.01, hspace=0.5, wspace=0.4)
             plt.imshow(original_copy[i].reshape(28,28), cmap='gray')
+
+            # plot gradient sign value
             plt.subplot(rows,3,jump - 1)
             plt.imshow(sign_values[i].reshape(28,28), cmap='gray')
-            plt.subplot(rows,3,jump)
+
+            # get the model confidence that the adversarial image is a 6
+            plt.subplot(rows,3,jump).set_title("Confidence Label 6: " + str(sess.run(pred, feed_dict={x:adversarial[i].reshape((1, 784))})[0][6] * 100) + "%")
             plt.imshow(adversarial[i].reshape(28,28), cmap='gray')
+            
             jump = jump + 3
         
         plt.show()
