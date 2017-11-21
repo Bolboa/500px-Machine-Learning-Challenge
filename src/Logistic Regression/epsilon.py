@@ -13,106 +13,106 @@ def use_model():
     
     mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
-    # tf Graph Input
+    # Graph Input.
     x = tf.placeholder(tf.float32, [None, 784]) # mnist data image of shape 28*28=784
     y = tf.placeholder(tf.float32, [None, 10]) # 0-9 digits recognition => 10 classes
 
-    # set model weights and bias
+    # Set model weights and bias.
     W = tf.Variable(tf.zeros([784, 10]))
     b = tf.Variable(tf.zeros([10]))
 
-    # construct model
+    # Construct model using the Softmax function.
     logits = tf.matmul(x, W) + b
-    pred = tf.nn.softmax(logits)  # Softmax
+    pred = tf.nn.softmax(logits)
 
-    # minimize error using cross entropy
+    # Minimize error using cross entropy.
     cost = tf.reduce_mean(-tf.reduce_sum(y * tf.log(pred), reduction_indices=1))
     
-    # Gradient Descent
+    # Gradient Descent.
     optimizer = tf.train.GradientDescentOptimizer(FLAGS.learning_rate).minimize(cost)
 
-    # initializing the variables    
+    # Initializing all variables.    
     init = tf.global_variables_initializer()
 
     saver = tf.train.Saver()
 
     with tf.Session() as sess:
 
-        # reload model
+        # Reload model.
         saver.restore(sess, "/tmp/model.ckpt")
 
-        # initialize array that will store images of number 2
+        # Initialize array that will store images of number 2.
         labels_of_2 = []
         
-        # get number 2 from mnist dataset
+        # Get number 2 from mnist dataset.
         while mnist.test.next_batch(FLAGS.batch_size):
 
-            # get next batch
+            # Get next batch.
             sample_image, sample_label = mnist.test.next_batch(FLAGS.batch_size)
 
-            # returns index of label
+            # Returns index of label.
             itemindex = np.where(sample_label == 1)
 
-            # if image label is a number 2 store the image
+            # If image label is a number 2 store the image.
             if itemindex[1][0] == 2:
                 labels_of_2.append(sample_image)
             else:
                 continue
 
-            # if there are 10 images stored then end the loop
+            # If there are 10 images stored then end the loop.
             if len(labels_of_2) == 10:
                 break
 
         
-        # convert into a numpy array of shape [10, 784]
+        # Convert into a numpy array of shape [10, 784].
         adversarial = np.concatenate(labels_of_2, axis=0)
 
-        # generate 101 different epsilon values to test with
+        # Generate 101 different epsilon values to test with.
         epsilon_res = 101
         eps = np.linspace(-1.0, 1.0, epsilon_res).reshape((epsilon_res, 1))
 
-        # labels for each image (used for graphing)
+        # Labels for each image (used for graphing).
         labels = [str(i) for i in range(10)]
 
-        # set different colors for every Softmax hypothesis
+        # Set different colors for every Softmax hypothesis.
         num_colors = 10
         cmap = plt.get_cmap('hsv')
         colors = [cmap(i) for i in np.linspace(0, 1, num_colors)]
         
-        # Create an empty array for our scores
+        # Create an empty array for our scores.
         scores = np.zeros((len(eps), 10))
 
-        # placeholder for target label
+        # Placeholder for target label.
         fake_label = tf.placeholder(tf.int32, shape=[10])
 
-        # setup the fake loss
+        # Setup the fake loss.
         fake_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits,labels=fake_label)
 
-        # calculate gradient
+        # Calculate the gradient.
         gradients = tf.gradients(fake_loss, x)
 
-        # compute gradient value using the same Softmax model used to train the orginal model,
-        # the gradient generates the values necessary to change the predictions of the number 2 to a number 6
-        # with minimal cost
+        # Compute gradient value using the same Softmax model used to train the orginal model.
+        # The gradient generates the values necessary to change the predictions of the number 2 to a number 6
+        # with minimal cost.
         gradient_value = sess.run(gradients, feed_dict={x:adversarial, fake_label:np.array([6]*10)})
 
         for j in range(len(adversarial)):
 
-            # extract the sign of the gradient value for each image
+            # Extract the sign of the gradient value for each image.
             sign = np.sign(gradient_value[0][j])
 
-            # apply every epsilon value along with the sign of the gradient to the image
+            # Apply every epsilon value along with the sign of the gradient to the image.
             for i in range(len(eps)):
                 x_fool = adversarial[j].reshape((1, 784)) + eps[i] * sign
 
-                # the scores are re-evaluated using the model and each 10 hypotheses are saved
+                # The scores are re-evaluated using the model and each 10 hypotheses are saved.
                 scores[i, :] = logits.eval({x:x_fool})
 
-            # create a figure
+            # Create a figure.
             plt.figure(figsize=(15, 15))
             plt.title("Image {}".format(j))
 
-            # loop through transpose of the scores to plot the effect of epsilon of every hypothesis
+            # Loop through transpose of the scores to plot the effect of epsilon of every hypothesis.
             for k in range(len(scores.T)):
                 plt.plot(eps, scores[:, k], 
                      color=colors[k], 
