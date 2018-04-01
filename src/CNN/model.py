@@ -113,55 +113,44 @@ def use_model():
                                     y: y_six, 
                                     prob_drop: 1.0})
 
-	# create labels for each type of image
-	labels = [str(i) for i in range(10)]
+	# we choose the epsilon values for which the score for the label 6
+	# is above all the other scores
+	epsilons = np.array([-0.2, -0.5, -0.25, -0.25, 
+                     -0.3, -0.49, -0.3, -0.7, 
+                     -0.5, -0.5]).reshape((10, 1))
 
-	# define the graph colors
-	num_colors = 10
-	cmap = plt.get_cmap('hsv')
-	colors = [cmap(i) for i in np.linspace(0, 1, num_colors)]
+	# calculate the noise and apply it to every image
+	noise = epsilons * np.sign(im_derivative)
+	x_ad = two_images + noise
 
-	# generate 101 epsilon values from -1.0 to 1.0
-	epsilon_res = 101
-	eps = np.linspace(-1.0, 1.0, epsilon_res).reshape((epsilon_res, 1))
+	# display the predictions for the original images and the adversarial images
+	old_images = tf.argmax(y_conv, 1).eval({x:two_images, prob_drop:1.0})
+	adversarial = tf.argmax(y_conv, 1).eval({x:x_ad, prob_drop:1.0})
 
-	# empty array to hold our scores
-	scores = np.zeros((len(eps), 10))
+	print("Labels of the original images: {}".format(old_images))
+	print("Labels of the adversarial images: {}".format(adversarial))
 
-	# loop through each image of 2
-	for j in range(len(two_images)):
+	# initialize variable for column index
+	jump = 3
 
-		# reshape the image
-		img = two_images[j].reshape((1, 784))
+	# initialize number of rows
+	rows = len(two_images)
 
-		# extract the sign of the derivative of the loss function
-		sign = np.sign(im_derivative[j])
+	# create a figure
+	plt.figure(figsize=(17, 17))
 
-		# apply every epsilon value to each image
-		for i in range(len(eps)):
+	# plot orginal image -> sign of gradient -> adversarial image
+	for i in range(rows):
+		x_float = tf.to_float(x) / 255
+		x_img = tf.reshape(x_float, [-1, 28, 28, 1])
+		print(x_img)
+		#prediction = tf.argmax(y_conv, 1)
+		#print(sess.run(prediction, feed_dict={x:x_img}))
+		#output = sess.run([prediction], feed_dict={x:two_images[i].reshape((1, 784))})
+		#print(output)
 
-			# equation for adding noise
-			fool = img + eps[i] * sign
-			scores[i, :] = y_conv.eval({x:fool, prob_drop:1.0})
-		
-		# define figure
-		plt.figure(figsize=(10, 8))
-		plt.title("Image {}".format(j))
 
-		# plot the score for every epsilon value
-		for k in range(len(scores.T)):
-			plt.plot(eps, scores[:, k],
-					color=colors[k],
-					marker='.',
-					label=labels[k]
-					)
 
-		# display graph
-		plt.legend(prop={'size':8})
-		plt.xlabel('Epsilon')
-		plt.ylabel('Class Score')
-		plt.grid('on')
-		plt.show()
-		
 
 use_model()
+
