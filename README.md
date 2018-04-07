@@ -1,6 +1,6 @@
-# Adversarial Images - Part 1
+# Adversarial Images
 
-This project is an experiment on breaking linear classifiers. In this particular example, the linear classifier implemented is the logistic regression function.
+This project is an experiment on breaking linear classifiers. In this particular example, the linear classifier implemented is the logistic regression function, a convoluted neural network, and a multi-layer perceptron.
 
 ## Description
 
